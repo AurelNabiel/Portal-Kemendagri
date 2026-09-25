@@ -1,0 +1,1 @@
+import PublicShell from '@/components/public/PublicShell';import ProgramsPublic from '@/components/public/ProgramsPublic';export const metadata={title:'Program Kerja'};export default function Page(){return <PublicShell title="Program Kerja" subtitle="Program, sasaran, target output, penanggung jawab, dan status pelaksanaan."><ProgramsPublic/></PublicShell>}

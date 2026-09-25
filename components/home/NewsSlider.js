@@ -8,6 +8,7 @@ import { Award, BarChart3, ChevronLeft, ChevronRight, FileText, IdCard, Landmark
 import 'swiper/css';
 import 'swiper/css/pagination';
 import { NEWS } from '@/lib/news-data';
+import { apiFetch } from '@/lib/api';
 import { fmt } from '@/lib/date';
 import { jakartaNow } from '@/hooks/useNow';
 
@@ -16,7 +17,24 @@ const ICONS = { landmark: Landmark, id: IdCard, map: Map, chart: BarChart3, awar
 export default function NewsSlider() {
   const [swiper, setSwiper] = useState(null);
   const [today, setToday] = useState(null);
+  const [news, setNews] = useState(NEWS);
   useEffect(() => setToday(jakartaNow()), []);
+  useEffect(() => {
+    apiFetch('/contents/public?type=NEWS')
+      .then((data) => {
+        if (!data.items?.length) return;
+        setNews(data.items.map((item, index) => ({
+          id: item.id,
+          title: item.title,
+          excerpt: item.summary || item.body?.slice(0, 180) || '',
+          category: 'Berita',
+          publishedAt: item.publishedAt,
+          icon: 'file',
+          tone: index % 2 ? 'tan' : 'navy',
+        })));
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <section id="berita" className="bg-navy-50">
@@ -59,7 +77,7 @@ export default function NewsSlider() {
           a11y={{ prevSlideMessage: 'Berita sebelumnya', nextSlideMessage: 'Berita berikutnya', paginationBulletMessage: 'Ke berita {{index}}' }}
           loop
         >
-          {NEWS.map((item) => {
+          {news.map((item) => {
             const Icon = ICONS[item.icon] ?? FileText;
             const navy = item.tone === 'navy';
             return (
@@ -80,7 +98,7 @@ export default function NewsSlider() {
                   </div>
                   <div className="flex flex-1 flex-col p-5">
                     <time className="text-sm text-navy-500" suppressHydrationWarning>
-                      {today ? fmt(subDays(today, item.daysAgo), 'd MMMM yyyy') : '\u00A0'}
+                      {item.publishedAt ? fmt(new Date(String(item.publishedAt).replace(' ', 'T')), 'd MMMM yyyy') : today ? fmt(subDays(today, item.daysAgo || 0), 'd MMMM yyyy') : '\u00A0'}
                     </time>
                     <h3 className="mt-2 font-serif text-xl leading-snug text-navy-900">
                       <a href="#" className="focus-ring rounded after:absolute after:inset-0 hover:text-navy-700">

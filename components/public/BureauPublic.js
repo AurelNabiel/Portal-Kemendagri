@@ -1,0 +1,4 @@
+'use client';
+import { useEffect,useState } from 'react';import { apiFetch } from '@/lib/api';
+export default function BureauPublic(){const[item,setItem]=useState(null);const[ready,setReady]=useState(false);useEffect(()=>{apiFetch('/bureau/public').then(d=>setItem(d.item)).finally(()=>setReady(true))},[]);if(!ready)return <div className="h-64 animate-pulse rounded-2xl bg-navy-50"/>;if(!item)return <Empty/>;return <article className="rounded-2xl border border-navy-100 bg-white p-6 shadow-sm sm:p-8"><h2 className="font-serif text-2xl text-navy-900">{item.title}</h2><div className="mt-5 whitespace-pre-wrap leading-8 text-navy-700">{item.body}</div></article>}
+function Empty(){return <div className="rounded-2xl border border-dashed border-navy-200 p-10 text-center text-navy-500">Informasi tugas dan fungsi belum dipublikasikan.</div>}

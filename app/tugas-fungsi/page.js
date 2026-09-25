@@ -1,0 +1,1 @@
+import PublicShell from '@/components/public/PublicShell';import BureauPublic from '@/components/public/BureauPublic';export const metadata={title:'Tugas & Fungsi Adpim'};export default function Page(){return <PublicShell title="Tugas & Fungsi Biro Administrasi Pimpinan" subtitle="Informasi tugas dan fungsi Biro Administrasi Pimpinan (Adpim)."><BureauPublic/></PublicShell>}

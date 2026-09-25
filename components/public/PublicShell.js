@@ -1,0 +1,3 @@
+import Link from 'next/link';
+import { ChevronRight } from 'lucide-react';
+export default function PublicShell({title,subtitle,children}){return <><section className="bg-navy-900 text-white"><div className="container-page py-11"><nav className="flex items-center gap-1.5 text-sm text-navy-200"><Link href="/">Beranda</Link><ChevronRight className="h-3.5 w-3.5"/><span className="text-tan-200">{title}</span></nav><h1 className="mt-4 font-serif text-3xl sm:text-4xl">{title}</h1>{subtitle&&<p className="mt-3 max-w-2xl text-navy-100">{subtitle}</p>}</div><div className="h-1 bg-tan-400"/></section><div className="container-page py-10 sm:py-12">{children}</div></>}

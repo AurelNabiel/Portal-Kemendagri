@@ -1,0 +1,1 @@
+import PublicShell from '@/components/public/PublicShell';import ActivitiesPublic from '@/components/public/ActivitiesPublic';export const metadata={title:'Aktivitas Kegiatan'};export default function Page(){return <PublicShell title="Aktivitas Kegiatan" subtitle="Dokumentasi kegiatan Biro Administrasi Pimpinan yang dipublikasikan."><ActivitiesPublic/></PublicShell>}

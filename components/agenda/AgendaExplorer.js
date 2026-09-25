@@ -7,7 +7,8 @@ import {
   addDays, addMonths, addWeeks, endOfMonth, endOfWeek, isValid, parseISO, startOfMonth, startOfWeek,
 } from 'date-fns';
 import { CalendarClock, CalendarDays, CalendarRange, ChevronLeft, ChevronRight, List, Search, X } from 'lucide-react';
-import { useAgenda } from '@/context/AgendaProvider';
+import { useAuth } from '@/context/AuthProvider';
+import { apiFetch } from '@/lib/api';
 import { jakartaNow, useNow } from '@/hooks/useNow';
 import { CATEGORIES, LEADERS, filterEvents } from '@/lib/agenda-data';
 import { fmt, toKey } from '@/lib/date';
@@ -29,8 +30,21 @@ export default function AgendaExplorer() {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { publicEvents, ready } = useAgenda();
+  const { token } = useAuth();
+  const [events, setEvents] = useState([]);
+  const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const now = useNow(30_000);
+
+  useEffect(() => {
+    let live = true;
+    setReady(false);
+    apiFetch('/agendas', { token })
+      .then((data) => { if (live) { setEvents(data.items || []); setLoadError(''); } })
+      .catch((error) => { if (live) { setEvents([]); setLoadError(error.message); } })
+      .finally(() => { if (live) setReady(true); });
+    return () => { live = false; };
+  }, [token]);
 
   const [view, setView] = useState(() => (VIEWS.some((v) => v.id === params.get('view')) ? params.get('view') : 'bulan'));
   const [cursor, setCursor] = useState(null);
@@ -56,7 +70,7 @@ export default function AgendaExplorer() {
     router.replace(`${pathname}?${next}`, { scroll: false });
   }, [view, cursor, q, pathname, router]);
 
-  const filtered = useMemo(() => filterEvents(publicEvents, { q, leaders, category }), [publicEvents, q, leaders, category]);
+  const filtered = useMemo(() => filterEvents(events, { q, leaders, category }), [events, q, leaders, category]);
   const hasFilters = q.trim() || leaders.length || category !== 'semua';
 
   const listEvents = useMemo(() => {
@@ -67,7 +81,7 @@ export default function AgendaExplorer() {
     return filtered.filter((e) => e.date >= from && e.date <= to);
   }, [filtered, cursor, q]);
 
-  const selected = selectedId ? publicEvents.find((e) => e.id === selectedId) ?? null : null;
+  const selected = selectedId ? events.find((e) => e.id === selectedId) ?? null : null;
   const closeModal = useCallback(() => setSelectedId(null), []);
 
   const step = (dir) => {
@@ -232,6 +246,8 @@ export default function AgendaExplorer() {
           </motion.h2>
         </AnimatePresence>
       </div>
+
+      {loadError && <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{loadError}</div>}
 
       {/* Isi tampilan */}
       <div className="mt-5">
